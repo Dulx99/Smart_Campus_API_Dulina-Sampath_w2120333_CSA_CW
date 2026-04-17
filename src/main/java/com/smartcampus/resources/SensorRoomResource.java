@@ -61,4 +61,29 @@ public class SensorRoomResource {
         }
         return Response.ok(room).build();
     }
+
+    /**
+     * DELETE /{roomId}: Implement room decommissioning with safety logic.
+     */
+    @DELETE
+    @Path("/{roomId}")
+    public Response deleteRoom(@PathParam("roomId") String roomId) {
+        Room room = dataService.getRooms().get(roomId);
+        if (room == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Room not found.")
+                    .build();
+        }
+
+        // Business Logic Constraint: Cannot delete a room if it has active sensors.
+        boolean hasSensors = dataService.getSensors().values().stream()
+                .anyMatch(sensor -> roomId.equals(sensor.getRoomId()));
+                
+        if (hasSensors) {
+            throw new com.smartcampus.exceptions.RoomNotEmptyException("Cannot delete room: It is currently occupied by active hardware.");
+        }
+
+        dataService.getRooms().remove(roomId);
+        return Response.noContent().build();
+    }
 }
