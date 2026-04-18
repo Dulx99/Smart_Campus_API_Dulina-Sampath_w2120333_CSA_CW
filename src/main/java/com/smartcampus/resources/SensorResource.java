@@ -77,4 +77,13 @@ public class SensorResource {
         // Otherwise return all
         return allSensors;
     }
+
+    /**
+     * Sub-Resource Locator for nested readings.
+     * Delegates requests from /sensors/{sensorId}/readings to SensorReadingResource.
+     */
+    @Path("/{sensorId}/readings")
+    public SensorReadingResource getReadingsResource(@PathParam("sensorId") String sensorId) {
+        return new SensorReadingResource(sensorId);
+    }
 }
