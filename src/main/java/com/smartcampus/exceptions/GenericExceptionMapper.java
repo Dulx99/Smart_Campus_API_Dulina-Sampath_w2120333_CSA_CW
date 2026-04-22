@@ -1,5 +1,6 @@
 package com.smartcampus.exceptions;
 
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -10,9 +11,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Global safety net to catch all unhandled runtime exceptions.
- * This prevents raw Java stack traces from leaking to the client, 
- * fulfilling the cybersecurity requirement of the coursework (Part 5.2).
+ * Global safety net (Part 5.4): Catches all unexpected runtime exceptions.
+ *
+ * This prevents raw Java stack traces from leaking to the client — a critical
+ * cybersecurity requirement. Attackers can extract library versions, classpaths,
+ * and internal logic from stack traces to identify known CVE vulnerabilities.
+ *
+ * NOTE: We deliberately skip WebApplicationException so that Jersey's own
+ * well-formed HTTP responses (e.g. 404 Not Found, 405 Method Not Allowed)
+ * are not overridden by a generic 500.
  */
 @Provider
 public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
@@ -21,13 +28,17 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable exception) {
-        // Log the actual error internally so we can still debug the server,
-        // but DO NOT send this stack trace back to the client.
-        LOGGER.log(Level.SEVERE, "Unexpected server error occurred", exception);
+        // Pass through Jersey's own HTTP exceptions (404, 405, etc.) unchanged
+        if (exception instanceof WebApplicationException) {
+            return ((WebApplicationException) exception).getResponse();
+        }
+
+        // For all other unexpected errors, log internally and return a safe 500
+        LOGGER.log(Level.SEVERE, "Unexpected server error occurred — stack trace hidden from client", exception);
 
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("error", "Internal Server Error");
-        responseBody.put("message", "An unexpected error occurred while processing your request.");
+        responseBody.put("message", "An unexpected error occurred. Please contact the administrator.");
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type(MediaType.APPLICATION_JSON)
