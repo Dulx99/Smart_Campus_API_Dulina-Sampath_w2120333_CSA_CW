@@ -1,5 +1,6 @@
 package com.smartcampus.exceptions;
 
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -19,6 +20,7 @@ public class SensorUnavailableExceptionMapper implements ExceptionMapper<SensorU
         responseBody.put("message", exception.getMessage());
 
         return Response.status(Response.Status.FORBIDDEN)
+                .type(MediaType.APPLICATION_JSON)
                 .entity(responseBody)
                 .build();
     }

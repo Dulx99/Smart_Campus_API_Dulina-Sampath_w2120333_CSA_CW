@@ -1,5 +1,6 @@
 package com.smartcampus.exceptions;
 
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -29,6 +30,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
         responseBody.put("message", "An unexpected error occurred while processing your request.");
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .type(MediaType.APPLICATION_JSON)
                 .entity(responseBody)
                 .build();
     }

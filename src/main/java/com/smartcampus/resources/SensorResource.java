@@ -79,6 +79,21 @@ public class SensorResource {
     }
 
     /**
+     * GET /{sensorId}: Fetch detailed metadata for a specific sensor.
+     */
+    @GET
+    @Path("/{sensorId}")
+    public Response getSensorById(@PathParam("sensorId") String sensorId) {
+        Sensor sensor = dataService.getSensors().get(sensorId);
+        if (sensor == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Sensor not found.")
+                    .build();
+        }
+        return Response.ok(sensor).build();
+    }
+
+    /**
      * Sub-Resource Locator for nested readings.
      * Delegates requests from /sensors/{sensorId}/readings to SensorReadingResource.
      */
