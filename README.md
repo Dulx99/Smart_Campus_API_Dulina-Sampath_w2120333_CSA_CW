@@ -39,40 +39,57 @@ Once running, the API is available at `http://localhost:8080/api/v1/`. Stop the 
 
 ---
 
-## Sample curl Commands
+## Testing with Postman
 
-Below are five commands that cover the main features of the API.
+Below are the exact HTTP requests and JSON payloads you can use in Postman to test the core functionality of the API.
 
-**1. Root Discovery Endpoint**
-```bash
-curl -i http://localhost:8080/api/v1/
-```
+**1. Root Discovery Endpoint (HATEOAS)**
+* **Method:** `GET`
+* **URL:** `http://localhost:8080/api/v1/`
 
 **2. Create a Room**
-```bash
-curl -i -X POST -H "Content-Type: application/json" \
-  -d "{\"id\":\"LIB-301\", \"name\":\"Library Quiet Study\", \"capacity\":30}" \
-  http://localhost:8080/api/v1/rooms
-```
+* **Method:** `POST`
+* **URL:** `http://localhost:8080/api/v1/rooms`
+* **Body (raw JSON):**
+  ```json
+  {
+    "id": "LIB-301",
+    "name": "Library Quiet Study",
+    "capacity": 30
+  }
+  ```
 
-**3. Register a Sensor (validates that the roomId exists)**
-```bash
-curl -i -X POST -H "Content-Type: application/json" \
-  -d "{\"id\":\"TEMP-001\", \"type\":\"Temperature\", \"status\":\"ACTIVE\", \"roomId\":\"LIB-301\"}" \
-  http://localhost:8080/api/v1/sensors
-```
+**3. Register a Sensor (Validates roomId)**
+* **Method:** `POST`
+* **URL:** `http://localhost:8080/api/v1/sensors`
+* **Body (raw JSON):**
+  ```json
+  {
+    "id": "TEMP-001",
+    "type": "Temperature",
+    "status": "ACTIVE",
+    "roomId": "LIB-301"
+  }
+  ```
 
-**4. Filter Sensors by Type**
-```bash
-curl -i "http://localhost:8080/api/v1/sensors?type=Temperature"
-```
+**4. Filter Sensors by Type (QueryParam)**
+* **Method:** `GET`
+* **URL:** `http://localhost:8080/api/v1/sensors?type=Temperature`
 
-**5. Add a Sensor Reading (updates the parent sensor's current value as a side effect)**
-```bash
-curl -i -X POST -H "Content-Type: application/json" \
-  -d "{\"value\": 21.5}" \
-  http://localhost:8080/api/v1/sensors/TEMP-001/readings
-```
+**5. Add a Sensor Reading (Triggers side effect on parent)**
+* **Method:** `POST`
+* **URL:** `http://localhost:8080/api/v1/sensors/TEMP-001/readings`
+* **Body (raw JSON):**
+  ```json
+  {
+    "value": 21.5
+  }
+  ```
+
+**6. Test Global Error Handler (500 Internal Server Error)**
+* **Method:** `GET`
+* **URL:** `http://localhost:8080/api/v1/error-test`
+* *(Returns a clean JSON error response with no stack trace)*
 
 ---
 
